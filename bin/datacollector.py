@@ -13,7 +13,6 @@ from cfg.logging_config import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
 
 
-timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
 path = os.path.dirname(os.path.dirname(__file__))
 logging.getLogger('root')
 
