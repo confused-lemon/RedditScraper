@@ -25,13 +25,14 @@ def data_collection(username, password, client_id, client_secret, agent) -> list
         client_secret=client_secret,
         user_agent=agent
     )
+    
     #Collect top 100 posts on r/all
     post_data_list = []
-
+    snapshot_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     rank=1
     for post in reddit_session.subreddit("all").hot(limit=100):
         post_data = [rank, post.id, post.subreddit, post.permalink, post.author, post.title, post.score, post.upvote_ratio, post.num_comments,
-        post.author_flair_text, post.created_utc, post.over_18, post.edited, post.stickied, post.locked, post.is_original_content]
+        post.author_flair_text, post.created_utc, post.over_18, post.edited, post.stickied, post.locked, post.is_original_content, snapshot_time]
         post_data_list.append(post_data)
         rank+=1
 
@@ -47,6 +48,7 @@ with open(f'{path}/cfg/credentials.yaml','r') as cred_file:
     agent = credentials["Reddit"]["user_agent"]
 
 try:
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     post_data_list = data_collection(username, password, client_id, client_secret, agent)
 except prawcore.exceptions.OAuthException as e:
     logging.exception(f"OAuthException occured : {e}")
@@ -57,6 +59,7 @@ except Exception as e1:
         logging.info("Sleeping 5 minutes...")
         sleep(300) #5 min sleep
         logging.info("Starting second attempt..")
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         post_data_list = data_collection(username, password, client_id, client_secret, agent)
         logging.info("Second attempt completed successfully.")
     except Exception as e:
@@ -64,7 +67,7 @@ except Exception as e1:
         exit(1)
 
 headers = ["rank", "id","subreddit","permalink","author","title","score","upvote_ratio","num_comments",
-           "author_flair_text","created_utc","over_18","edited","stickied","locked","is_original_content"]
+           "author_flair_text","created_utc","over_18","edited","stickied","locked","is_original_content", "snapshot_time(UTC)"]
 
 
 with open(f"{path}/CSV_datasets/{timestamp}.csv", "w") as file:
