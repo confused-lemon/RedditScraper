@@ -1,0 +1,4 @@
+2023-07-21 08:17:11,265 : [WARNING] : First attempt failed due to error with request HTTPSConnectionPool(host='www.reddit.com', port=443): Max retries exceeded with url: /api/v1/access_token (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0xf67ebf58>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution'))
+2023-07-21 08:17:11,266 : [INFO] : Sleeping 5 minutes...
+2023-07-21 08:22:11,367 : [INFO] : Starting second attempt..
+2023-07-21 08:24:15,626 : [ERROR] : Aborting after two failed attempts. error with request HTTPSConnectionPool(host='www.reddit.com', port=443): Max retries exceeded with url: /api/v1/access_token (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0xf6821f40>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution'))

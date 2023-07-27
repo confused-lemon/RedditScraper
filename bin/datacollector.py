@@ -54,7 +54,7 @@ except prawcore.exceptions.OAuthException as e:
     exit(1)
 except Exception as e1:
     try:
-        logging.warning(f"First attempt failed due to {e1}")
+        logging.warning(f"First attempt failed due to: {e1}")
         logging.info("Sleeping 5 minutes...")
         sleep(300) #5 min sleep
         logging.info("Starting second attempt..")
