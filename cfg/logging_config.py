@@ -18,12 +18,25 @@ LOGGING_CONFIG = {
             'mode' : 'a',
             'delay' : True
         },
+        'upload' : {
+            'level': 'INFO',
+            'formatter': 'standard',
+            'class': 'logging.FileHandler',
+            'filename' : f'{path}/Error_Files/{timestamp}_error_report.log',
+            'mode' : 'a',
+            'delay' : True
+        }
     },
     'loggers': {
-        'root': {  # root logger
+        'collector': {  # root logger
             'handlers': ['default'],
             'level': 'INFO',
             'propagate': False
+        },
+        'uploader' : {
+            'handlers' : ['upload'],
+            'level' : 'WARN',
+            'propagate' : False
         }
     }
 }
