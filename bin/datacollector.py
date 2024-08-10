@@ -29,8 +29,8 @@ def data_collection(username, password, client_id, client_secret, agent) -> list
     snapshot_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     rank=1
     for post in reddit_session.subreddit("all").hot(limit=100):
-        post_data = [rank, post.id, post.subreddit, post.permalink, post.author, post.title.replace("'", "\\'").replace('"', '\\"'), post.score, post.upvote_ratio, post.num_comments,
-        post.author_flair_text, post.created_utc, post.over_18, post.edited, post.stickied, post.locked, post.is_original_content, snapshot_time]
+        post_data = [rank, post.id, post.subreddit, post.permalink, post.author, post.title.replace("'", "\\'").replace('"', '\\"').replace('\n',''), post.score, post.upvote_ratio,
+        post.num_comments, post.author_flair_text.replace('\n', ''), post.created_utc, post.over_18, post.edited, post.stickied, post.locked, post.is_original_content, snapshot_time]
         post_data_list.append(post_data)
         rank+=1
 
