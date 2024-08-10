@@ -2,9 +2,9 @@
 import yaml
 import praw, prawcore
 import csv
-from datetime import datetime
+from datetime import datetime, timezone
 import logging, logging.config
-from time import sleep
+from time import sleep, time
 import os, sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
@@ -12,9 +12,8 @@ sys.path.append(project_root)
 from cfg.logging_config import LOGGING_CONFIG
 logging.config.dictConfig(LOGGING_CONFIG)
 
-
 path = os.path.dirname(os.path.dirname(__file__))
-logging.getLogger('root')
+logging.getLogger('collector')
 
 def data_collection(username, password, client_id, client_secret, agent) -> list:
     reddit_session = praw.Reddit(
@@ -27,10 +26,10 @@ def data_collection(username, password, client_id, client_secret, agent) -> list
     
     #Collect top 100 posts on r/all
     post_data_list = []
-    snapshot_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    snapshot_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     rank=1
     for post in reddit_session.subreddit("all").hot(limit=100):
-        post_data = [rank, post.id, post.subreddit, post.permalink, post.author, "".join(post.title.replace("'", "\\'").replace('"', '\\"').replace('\n','')), post.score, post.upvote_ratio, post.num_comments,
+        post_data = [rank, post.id, post.subreddit, post.permalink, post.author, post.title.replace("'", "\\'").replace('"', '\\"'), post.score, post.upvote_ratio, post.num_comments,
         post.author_flair_text, post.created_utc, post.over_18, post.edited, post.stickied, post.locked, post.is_original_content, snapshot_time]
         post_data_list.append(post_data)
         rank+=1
@@ -47,7 +46,7 @@ with open(f'{path}/cfg/credentials.yaml','r') as cred_file:
     agent = credentials["Reddit"]["user_agent"]
 
 try:
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     post_data_list = data_collection(username, password, client_id, client_secret, agent)
 except prawcore.exceptions.OAuthException as e:
     logging.exception(f"OAuthException occured : {e}")

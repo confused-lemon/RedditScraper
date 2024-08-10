@@ -2,7 +2,7 @@ import yaml, os, glob, sys, logging.config
 import subprocess as sp
 from pyspark.sql import SparkSession
 from schema import TABLE_SCHEMA
-from counter import count_csv_rows
+from utils.counter import count_csv_rows
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
@@ -37,12 +37,13 @@ connection = {
 
 files = glob.glob(f'{path}/CSV_datasets/*.csv')
 
-count = 0
+
 for data_file in files:
     try:
-        flag, count = count_csv_rows(data_file)
-        assert flag
-        
+        count = count_csv_rows(data_file)
+        if count != 100:
+            raise AssertionError
+
         df = spark.read \
         .option("quote", "\'") \
         .option("quote", "\"") \
@@ -52,14 +53,9 @@ for data_file in files:
         df = df.withColumnRenamed("snapshot_time(UTC)", "snapshot_time_utc")
         df.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table= main_table, properties = connection, mode='append')
         sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
-        
-        if count == 100:
-            break
-        else:
-            count+=1
     except AssertionError as ae:
         sp.run(['mv', f'{data_file}', f'{path}/Error_Files/counts'], check=True)
-        logging.error(f"File {data_file.split('/')[-1]} has a record count error({count_csv_rows})")
+        logging.error(f"File {data_file.split('/')[-1]} has a record count error({count})")
     except Exception as sqlException:
         sp.run(['mv', f'{data_file}', f'{path}/Error_Files/Exception'], check=True)
         logging.error(f"Error occured when attempting to upload file: {data_file}\n{sqlException}")
