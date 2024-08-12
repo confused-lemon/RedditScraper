@@ -1,7 +1,7 @@
 import os; path = os.path.dirname(os.path.dirname(__file__))
 from datetime import datetime, timezone
 timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-date = datetime.now(timezone.utc).date()
+date = datetime.now(timezone.utc).date().strftime('%Y%m%d')
 
 LOGGING_CONFIG = {
     'version': 1,
