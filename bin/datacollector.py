@@ -4,7 +4,7 @@ import praw, prawcore
 import csv
 from datetime import datetime, timezone
 import logging, logging.config
-from time import sleep, time
+from time import sleep
 import os, sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
