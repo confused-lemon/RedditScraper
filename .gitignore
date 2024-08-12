@@ -1,3 +1,4 @@
-CSV_datasets/*.csv
+CSV_datasets/
 Processed_files/
 Error_Files/
+logs/
