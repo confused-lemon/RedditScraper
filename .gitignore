@@ -2,3 +2,4 @@ CSV_datasets/
 Processed_files/
 Error_Files/
 logs/
+cfg/*.yaml
