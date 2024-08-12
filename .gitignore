@@ -1,0 +1,3 @@
+CSV_datasets/*.csv
+Processed_files/
+Error_Files/
