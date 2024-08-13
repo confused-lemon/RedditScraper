@@ -53,7 +53,7 @@ for data_file in files:
         df = df.withColumnRenamed("snapshot_time(UTC)", "snapshot_time_utc")
         df.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table= main_table, properties = connection, mode='append')
         sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
-    except AssertionError as ae:
+    except AssertionError:
         sp.run(['mv', f'{data_file}', f'{path}/Error_Files/counts'], check=True)
         logging.error(f"File {data_file.split('/')[-1]} has a record count error({count})")
     except Exception as sqlException:

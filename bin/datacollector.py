@@ -4,7 +4,7 @@ import praw, prawcore
 import csv
 from datetime import datetime, timezone
 import logging, logging.config
-from time import sleep, time
+from time import sleep
 import os, sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
@@ -57,7 +57,7 @@ except Exception as e1:
         logging.info("Sleeping 5 minutes...")
         sleep(300) #5 min sleep
         logging.info("Starting second attempt..")
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         post_data_list = data_collection(username, password, client_id, client_secret, agent)
         logging.info("Second attempt completed successfully.")
     except Exception as e:
