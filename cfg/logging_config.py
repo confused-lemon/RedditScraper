@@ -5,7 +5,7 @@ date = datetime.now(timezone.utc).date().strftime('%Y%m%d')
 
 LOGGING_CONFIG = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'standard': {
             'format': '%(asctime)s : [%(levelname)s] : %(message)s'
