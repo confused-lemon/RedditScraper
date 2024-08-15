@@ -37,13 +37,15 @@ connection = {
 
 files = glob.glob(f'{path}/CSV_datasets/*.csv')
 
-
+file_count = 0
 for data_file in files:
     try:
         count = count_csv_rows(data_file)
         if count != 100:
             raise AssertionError
 
+        if file_count == 5000: break
+        
         df = spark.read \
         .option("quote", "\'") \
         .option("quote", "\"") \
