@@ -44,8 +44,8 @@ for data_file in files:
         if count != 100:
             raise AssertionError
 
-        if file_count == 5000: break
         
+
         df = spark.read \
         .option("quote", "\'") \
         .option("quote", "\"") \
