@@ -44,7 +44,6 @@ for data_file in files:
             raise AssertionError
 
         df = spark.read \
-        .option("quote", "\'") \
         .option("quote", "\"") \
         .option("escape", "\"") \
         .csv(data_file, header=True,  schema=TABLE_SCHEMA)
