@@ -1,11 +1,9 @@
 #python 3.9
-import yaml
+import yaml, csv, os, sys, base64
 import praw, prawcore
-import csv
 from datetime import datetime, timezone
 import logging, logging.config
 from time import sleep
-import os, sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
 sys.path.append(project_root)
@@ -14,6 +12,11 @@ logging.config.dictConfig(LOGGING_CONFIG)
 
 path = os.path.dirname(os.path.dirname(__file__))
 logging.getLogger('collector')
+
+def encode_base64(input: str) -> str:
+    byte_data = input.encode('utf-8')
+    base64_encoded = base64.b64encode(byte_data)
+    return base64_encoded.decode('utf-8')
 
 def data_collection(username, password, client_id, client_secret, agent) -> list:
     reddit_session = praw.Reddit(
@@ -29,8 +32,8 @@ def data_collection(username, password, client_id, client_secret, agent) -> list
     snapshot_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     rank=1
     for post in reddit_session.subreddit("all").hot(limit=100):
-        post_data = [rank, post.id, post.subreddit, post.permalink, post.author, post.title.replace("'", "\\'").replace('"', '\\"').replace('\n',''), post.score, post.upvote_ratio,
-            post.num_comments, post.author_flair_text.replace('\n', '') if post.author_flair_text is not None else post.author_flair_text, post.created_utc, post.over_18, post.edited,
+        post_data = [rank, post.id, post.subreddit, post.permalink, post.author, encode_base64(post.title.replace('\n', '')), post.score, post.upvote_ratio,
+            post.num_comments, encode_base64(post.author_flair_text.replace('\n', '')) if post.author_flair_text is not None else post.author_flair_text, post.created_utc, post.over_18, post.edited,
             post.stickied, post.locked, post.is_original_content, snapshot_time]
         post_data_list.append(post_data)
         rank+=1
