@@ -13,7 +13,7 @@ TABLE_SCHEMA = StructType([
         StructField("author_flair_text", StringType()),
         StructField("created_utc", FloatType()),
         StructField("over_18", BooleanType()),
-        StructField("edited", BooleanType()),
+        StructField("edited", StringType()),
         StructField("stickied", BooleanType()),
         StructField("locked", BooleanType()),
         StructField("is_original_content", BooleanType()),
