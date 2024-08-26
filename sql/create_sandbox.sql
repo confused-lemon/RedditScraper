@@ -1,4 +1,4 @@
-CREATE TABLE main_post_data(
+CREATE TABLE sandbox_data_table(
     id VARCHAR(16),
     rank INT,
     subreddit VARCHAR(25),
