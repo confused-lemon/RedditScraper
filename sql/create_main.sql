@@ -11,7 +11,7 @@ CREATE TABLE main_post_data(
     author_flair_text VARCHAR(50),
     created_utc FLOAT,
     over_18 BOOLEAN,
-    edited BOOLEAN,
+    edited VARCHAR(15),
     stickied BOOLEAN,
     locked BOOLEAN,
     is_original_content BOOLEAN,
