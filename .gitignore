@@ -3,4 +3,8 @@ Processed_files/
 Error_Files/
 logs/
 cfg/*.yaml
-sb.ipynb
+bin/sb.py
+__pycache__/
+db_upload
+*.pyc
+*.csv
