@@ -1,6 +1,7 @@
 import yaml, os, glob, sys, logging.config, base64, pandas
 import subprocess as sp
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 from schema import TABLE_SCHEMA
 from utils.counter import count_csv_rows
 from datetime import datetime
@@ -60,22 +61,24 @@ for data_file in files: #first in base64 is 20240818_160002.csv
         #     raise AssertionError
 
         df = pandas.read_csv(data_file)
-        df['title'] = df['title'].apply(lambda title: decode_from_base64(title))
-        df['title'] = df['title'].apply(lambda title: clean_backslash_quotes(title))
+        try:
+            df['title'] = df['title'].apply(lambda title: decode_from_base64(title))
+        except Exception as e:
+            df['title'] = df['title'].apply(lambda title: clean_backslash_quotes(title))
+
         df['snapshot_time(UTC)'] = df['snapshot_time(UTC)'].apply(lambda snapshot_time: conv_str_to_ts(snapshot_time))
 
         df_spark = spark.createDataFrame(df, schema=TABLE_SCHEMA)
-        # df_spark = df_spark.withColumn("snapshot_time(UTC)", df_spark["snapshot_time(UTC)"].cast(TimestampType()))
 
-        df_spark_schema = spark.createDataFrame(df_spark.rdd, schema=TABLE_SCHEMA)
-        df_spark_schema = df_spark.withColumnRenamed("snapshot_time(UTC)", "snapshot_time_utc")
-        df_spark_schema.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table=main_table, properties=connection, mode='append')
+        df_spark = df_spark.withColumnRenamed("snapshot_time(UTC)", "snapshot_time_utc")
+        
+        # df_spark.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table=main_table, properties=connection, mode='append')
         # sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
     except AssertionError:
         # sp.run(['mv', f'{data_file}', f'{path}/Error_Files/counts'], check=True)
         # logging.error(f"File {data_file.split('/')[-1]} has a record count error({count})")
-        NotImplementedError
+        raise NotImplementedError
     except Exception as sqlException:
-        print(sqlException)
+        print(f'{data_file}: {sqlException}')
         # sp.run(['mv', f'{data_file}', f'{path}/Error_Files/Exception'], check=True)
         # logging.error(f"Error occured when attempting to upload file: {data_file}\n{sqlException}")
