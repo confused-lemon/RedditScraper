@@ -53,7 +53,8 @@ def title_length_check(title: str) -> bool:
 
 for data_file in files: #first in base64 is 20240818_160002.csv
     try:
-        counter.count_csv_rows(data_file)
+        count = counter.count_csv_rows(data_file)
+        assert count == 100
 
         df = pandas.read_csv(data_file)
         try:
@@ -68,13 +69,11 @@ for data_file in files: #first in base64 is 20240818_160002.csv
 
         df_spark = df_spark.withColumnRenamed("snapshot_time(UTC)", "snapshot_time_utc")
         
-        # df_spark.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table=main_table, properties=connection, mode='append')
-        # sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
-    except ValueError:
-        # sp.run(['mv', f'{data_file}', f'{path}/Error_Files/counts'], check=True)
-        # logging.error(f"File {data_file.split('/')[-1]} has a record count error({count})")
-        raise NotImplementedError
+        df_spark.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table=main_table, properties=connection, mode='append')
+        sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
+    except AssertionError:
+        sp.run(['mv', f'{data_file}', f'{path}/Error_Files/counts'], check=True)
+        logging.error(f"File {data_file.split('/')[-1]} has a record count error({count})")
     except Exception as sqlException:
-        print(f'{data_file}: {sqlException}')
-        # sp.run(['mv', f'{data_file}', f'{path}/Error_Files/Exception'], check=True)
-        # logging.error(f"Error occured when attempting to upload file: {data_file}\n{sqlException}")
+        sp.run(['mv', f'{data_file}', f'{path}/Error_Files/Exception'], check=True)
+        logging.error(f"Error occured when attempting to upload file: {data_file}\n{sqlException}")
