@@ -8,7 +8,7 @@ CREATE TABLE main_post_data(
     score INT,
     upvote_ratio FLOAT,
     num_comments INT,
-    author_flair_text VARCHAR(50),
+    author_flair_text VARCHAR(64),
     created_utc FLOAT,
     over_18 BOOLEAN,
     edited VARCHAR(15),
