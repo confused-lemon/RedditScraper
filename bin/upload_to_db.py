@@ -51,7 +51,7 @@ def clean_backslash_quotes(input_string: str) -> str:
 def title_length_check(title: str) -> bool:
     return len(title) < 300
 
-for data_file in files: #first in base64 is 20240818_160002.csv
+for data_file in files: 
     try:
         count = counter.count_csv_rows(data_file)
         assert count == 100
