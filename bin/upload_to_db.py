@@ -59,7 +59,7 @@ for data_file in files: #first in base64 is 20240818_160002.csv
         df = pandas.read_csv(data_file)
         try:
             df['title'] = df['title'].apply(lambda title: decode_from_base64(title))
-            df['author_flair_text'] = df['author_flair_text'].apply(lambda flair: decode_from_base64(flair))
+            df['author_flair_text'] = df['author_flair_text'].apply(lambda flair: decode_from_base64(flair) if pandas.notnull(flair) else flair)
         except Exception as e:
             df['title'] = df['title'].apply(lambda title: clean_backslash_quotes(title))
  
