@@ -37,6 +37,13 @@ connection = {
 
 files = glob.glob(f'{path}/CSV_datasets/*.csv')
 
+def is_base64(title: str) -> bool:
+    try:
+        base64.b64decode(title, validate=True)
+        return True
+    except Exception as e:
+        return False
+
 def decode_from_base64(encoded_string: str) -> str:
     base64_bytes = encoded_string.encode('utf-8')
     byte_data = base64.b64decode(base64_bytes)
@@ -57,15 +64,19 @@ for data_file in files:
         assert count == 100
 
         df = pandas.read_csv(data_file)
-
-        df['title'] = df['title'].apply(lambda title: decode_from_base64(title))
-        df['author_flair_text'] = df['author_flair_text'].apply(lambda flair: decode_from_base64(flair) if pandas.notnull(flair) else flair)
+        file_is_encoded = df["title"].apply(is_base64).all()
+        if file_is_encoded:
+            df['title'] = df['title'].apply(lambda title: decode_from_base64(title))
+            df['author_flair_text'] = df['author_flair_text'].apply(lambda flair: decode_from_base64(flair) if pandas.notnull(flair) else flair)
+        else:
+            df['title'] = df['title'].apply(lambda title: clean_backslash_quotes(title))
+            df['author_flair_text'] = df['author_flair_text'].apply(lambda flair: clean_backslash_quotes(flair) if pandas.notnull(flair) else flair)
         df['snapshot_time(UTC)'] = df['snapshot_time(UTC)'].apply(lambda snapshot_time: conv_str_to_ts(snapshot_time))
 
         df_spark = spark.createDataFrame(df, schema=TABLE_SCHEMA)
 
         df_spark = df_spark.withColumnRenamed("snapshot_time(UTC)", "snapshot_time_utc")
-        
+
         df_spark.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table=main_table, properties=connection, mode='append')
         sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
     except AssertionError:
