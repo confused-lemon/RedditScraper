@@ -25,7 +25,7 @@ with open(f'{path}/cfg/credentials.yaml','r') as cred_file:
 
 spark = SparkSession.builder \
     .master("local[*]") \
-    .appName("Test Connection") \
+    .appName("Daily Record Upload") \
     .config('spark.jars', '/usr/local/bin/postgresql-42.7.3.jar') \
     .getOrCreate()
 
