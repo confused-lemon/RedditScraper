@@ -1,6 +1,5 @@
 import re, io
 import pandas as pd
-from counter import count_csv_rows
 
 def process_csv(input_file) -> None:
     """Takes a file with a bad record count, and fixes it to be 100 records"""
