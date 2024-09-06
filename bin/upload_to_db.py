@@ -2,7 +2,7 @@ import yaml, os, glob, sys, logging.config, base64, pandas
 import subprocess as sp
 from pyspark.sql import SparkSession
 from schema import TABLE_SCHEMA
-from utils import counter
+from utils import counter, count_fixer
 from datetime import datetime
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -45,26 +45,34 @@ def decode_from_base64(encoded_string: str) -> str:
 def conv_str_to_ts(input_time_str: str) -> datetime:
     return datetime.strptime(input_time_str, "%Y-%m-%d %H:%M:%S")
 
+def upload(current_file) -> None:
+    df = pandas.read_csv(current_file)
+
+    df['title'] = df['title'].apply(lambda title: decode_from_base64(title))
+    df['author_flair_text'] = df['author_flair_text'].apply(lambda flair: decode_from_base64(flair) if pandas.notnull(flair) else flair)
+    df['snapshot_time(UTC)'] = df['snapshot_time(UTC)'].apply(lambda snapshot_time: conv_str_to_ts(snapshot_time))
+    df_spark = spark.createDataFrame(df, schema=TABLE_SCHEMA)
+    df_spark = df_spark.withColumnRenamed("snapshot_time(UTC)", "snapshot_time_utc")
+
+    df_spark.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table=main_table, properties=connection, mode='append')
 
 for data_file in files: 
     try:
         count = counter.count_csv_rows(data_file)
         assert count == 100
-
-        df = pandas.read_csv(data_file)
-
-        df['title'] = df['title'].apply(lambda title: decode_from_base64(title))
-        df['author_flair_text'] = df['author_flair_text'].apply(lambda flair: decode_from_base64(flair) if pandas.notnull(flair) else flair)
-        df['snapshot_time(UTC)'] = df['snapshot_time(UTC)'].apply(lambda snapshot_time: conv_str_to_ts(snapshot_time))
-
-        df_spark = spark.createDataFrame(df, schema=TABLE_SCHEMA)
-        df_spark = df_spark.withColumnRenamed("snapshot_time(UTC)", "snapshot_time_utc")
-
-        df_spark.write.jdbc(url=f'jdbc:postgresql://{ip_addr}:{port}/{db}', table=main_table, properties=connection, mode='append')
+        upload(data_file)
         sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
+        
     except AssertionError:
-        sp.run(['mv', f'{data_file}', f'{path}/Error_Files/counts'], check=True)
-        logging.error(f"File {data_file.split('/')[-1]} has a record count error({count})")
+        try:
+            count_fixer.process_csv(data_file)
+            assert counter.count_csv_rows(data_file) == 100
+            upload(data_file)
+            sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
+
+        except AssertionError:
+            sp.run(['mv', f'{data_file}', f'{path}/Error_Files/counts'], check=True)
+            logging.error(f"File {data_file.split('/')[-1]} has a record count error({count})")
     except Exception as sqlException:
         sp.run(['mv', f'{data_file}', f'{path}/Error_Files/Exception'], check=True)
         logging.error(f"Error occured when attempting to upload file: {data_file}\n{sqlException}")
