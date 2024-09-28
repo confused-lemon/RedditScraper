@@ -21,10 +21,18 @@ LOGGING_CONFIG = {
             'delay' : True
         },
         'upload' : {
-            'level': 'INFO',
+            'level': 'WARN',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
             'filename' : f'{path}/Error_Files/{date}_upload_error_report.log',
+            'mode' : 'a',
+            'delay' : True
+        },
+        'history' : {
+            'level': 'WARN',
+            'formatter': 'standard',
+            'class': 'logging.FileHandler',
+            'filename' : f'{path}/History_upload/history_upload_errs.log',
             'mode' : 'a',
             'delay' : True
         }
@@ -36,6 +44,11 @@ LOGGING_CONFIG = {
             'propagate': False
         },
         'uploader' : {
+            'handlers' : ['upload'],
+            'level' : 'WARN',
+            'propagate' : False
+        },
+        'history_logger' : {
             'handlers' : ['upload'],
             'level' : 'WARN',
             'propagate' : False
