@@ -22,7 +22,7 @@ s3_session = boto3.client(
     aws_secret_access_key=aws_secret_key,
     )
 
-history_files = glob.glob('Processed_files/*.csv')
+history_files = glob.glob(f'{path}/Processed_files/*.csv')
 print(f'Files to upload: {len(history_files)}')
 errs =[]
 err_count=0
