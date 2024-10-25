@@ -77,7 +77,7 @@ for data_file in files:
         count = counter.count_csv_rows(data_file)
         assert count == 100
         upload_local(data_file)
-        upload_aws(data_file)
+        # upload_aws(data_file)
         sp.run(['mv', f'{data_file}', f'{path}/Processed_files/'], check=True)
         
     except AssertionError:
