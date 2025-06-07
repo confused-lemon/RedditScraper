@@ -27,8 +27,8 @@ print(f'Files to upload: {len(history_files)}')
 errs =[]
 err_count=0
 for file in history_files:
+    file_name = file.split('/')[-1]
     try:
-        file_name = file.split('/')[-1]
         year, month,day = file_name[0:4], file_name[4:6], file_name[6:8]
         s3_session.upload_file(file, s3_bucket, f'{year}/{month}/{day}/{file_name}')
     except Exception as e: 
